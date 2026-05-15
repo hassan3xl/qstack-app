@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Jobs Management{% endblock %}
+{% block page_title %}Jobs Management{% endblock %}
+{% block sidebar %}
+<a href="{% url 'users:dashboard' %}">Dashboard</a>
+<a href="{% url 'users:profile' %}">Profile</a>
+{% if staff_profile %}
+<a href="{% url 'users:staff_profile' %}">Staff Profile</a>
+{% endif %}
+<a href="{% url 'notifications:list' %}">Notifications</a>
+{% if user.is_staff %}
+<hr class="bg-white" />
+<a href="{% url 'admin_panel:dashboard' %}">Dashboard</a>
+<a href="{% url 'admin_panel:member_list' %}">Members</a>
+<a href="{% url 'admin_panel:job_list' %}" class="">Jobs</a>
+<a href="{% url 'admin_panel:portfolio_list' %}">Portfolios</a>
+<a href="{% url 'admin_panel:contact_list' %}">Contacts</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  <div class="card">
+    <div class="px-6 py-4 border-b border-borderColor bg-black/20">
+      <h5>Jobs List</h5>
+    </div>
+    <div class="overflow-x-auto w-full">
+      <table class="w-full text-left border-collapse mb-0">
+        <thead class="bg-[#222] text-textLight border-b border-borderColor">
+          <tr>
+            <th>Title</th>
+            <th>Company</th>
+            <th>Type</th>
+            <th>Created</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in jobs %}
+          <tr>
+            <td>{{ job.title }}</td>
+            <td>{{ job.company|default:"--" }}</td>
+            <td>{{ job.job_type|default:"--" }}</td>
+            <td>{{ job.created_at|date:"M d, Y" }}</td>
+            <td>
+              <a
+                href="{% url 'admin_panel:job_detail' job.id %}"
+                class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer text-sm px-3 py-1 border border-green text-green hover:bg-green hover:text-white"
+                >View</a
+              >
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-gray-400 py-4">
+              No jobs found
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="flex list-none gap-1">
+      {% if page_obj.has_previous %}
+      <li class=""><a class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors" href="?page=1">First</a></li>
+      <li class="">
+        <a class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors" href="?page={{ page_obj.previous_page_number }}"
+          >Previous</a
+        >
+      </li>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+      <li class="bg-green text-white"><span class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors">{{ num }}</span></li>
+        {% else %}
+      <li class="">
+        <a class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors" href="?page={{ num }}">{{ num }}</a>
+      </li>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <li class="">
+        <a class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors" href="?page={{ page_obj.next_page_number }}"
+          >Next</a
+        >
+      </li>
+      <li class="">
+        <a class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors" href="?page={{ page_obj.paginator.num_pages }}"
+          >Last</a
+        >
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

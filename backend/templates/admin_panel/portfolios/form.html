@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if portfolio %}Edit Portfolio{% else %}Create Portfolio{% endif %}{% endblock %}
+{% block page_title %}{% if portfolio %}Edit Portfolio{% else %}Create Portfolio{% endif %}{% endblock %}
+
+{% block sidebar %}
+    <a href="{% url 'users:dashboard' %}" class="sidebar-link">Dashboard</a>
+    <a href="{% url 'users:profile' %}" class="sidebar-link">Profile</a>
+    {% if staff_profile %}
+        <a href="{% url 'users:staff_profile' %}" class="sidebar-link">Staff Profile</a>
+    {% endif %}
+    <a href="{% url 'notifications:list' %}" class="sidebar-link">Notifications</a>
+    {% if user.is_staff %}
+        <div class="my-2 border-t border-borderColor"></div>
+        <a href="{% url 'admin_panel:dashboard' %}" class="sidebar-link">Dashboard</a>
+        <a href="{% url 'admin_panel:member_list' %}" class="sidebar-link">Members</a>
+        <a href="{% url 'admin_panel:job_list' %}" class="sidebar-link">Jobs</a>
+        <a href="{% url 'admin_panel:portfolio_list' %}" class="sidebar-link active">Portfolios</a>
+        <a href="{% url 'admin_panel:contact_list' %}" class="sidebar-link">Contacts</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full">
+    <div class="flex flex-wrap -mx-4 mb-4">
+        <div class="w-full px-4">
+            <a href="{% url 'admin_panel:portfolio_list' %}" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer bg-[#333] text-white hover:bg-[#444] border border-borderColor">Back to Portfolios</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="px-6 py-4 border-b border-borderColor bg-black/20">
+            <h5>{% if portfolio %}Edit Portfolio{% else %}Create New Portfolio{% endif %}</h5>
+        </div>
+        <div class="p-6">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="flex flex-wrap -mx-4 mb-3">
+                    <div class="w-full md:w-1/2 px-4">
+                        <label for="title" class="block text-sm font-medium mb-1 text-gray-300">Title *</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               value="{% if portfolio %}{{ portfolio.title }}{% endif %}" required>
+                    </div>
+                    <div class="w-full md:w-1/2 px-4">
+                        <label for="status" class="block text-sm font-medium mb-1 text-gray-300">Status *</label>
+                        <select class="form-control" id="status" name="status" required>
+                            <option value="development" {% if portfolio.status == 'development' %}selected{% endif %}>In Development</option>
+                            <option value="live" {% if portfolio.status == 'live' %}selected{% endif %}>Live</option>
+                            <option value="managing" {% if portfolio.status == 'managing' %}selected{% endif %}>Managing</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap -mx-4 mb-3">
+                    <div class="w-full md:w-1/2 px-4">
+                        <label for="category" class="block text-sm font-medium mb-1 text-gray-300">Category</label>
+                        <select class="form-control" id="category" name="category">
+                            <option value="">Select a category</option>
+                            <option value="Web Development" {% if portfolio.category == "Web Development" %}selected{% endif %}>Web Development</option>
+                            <option value="Mobile App" {% if portfolio.category == "Mobile App" %}selected{% endif %}>Mobile App</option>
+                            <option value="UI/UX Design" {% if portfolio.category == "UI/UX Design" %}selected{% endif %}>UI/UX Design</option>
+                            <option value="Digital Marketing" {% if portfolio.category == "Digital Marketing" %}selected{% endif %}>Digital Marketing</option>
+                            <option value="SEO" {% if portfolio.category == "SEO" %}selected{% endif %}>SEO</option>
+                        </select>
+                    </div>
+                    <div class="w-full md:w-1/2 px-4">
+                        <label for="client" class="block text-sm font-medium mb-1 text-gray-300">Client</label>
+                        <input type="text" class="form-control" id="client" name="client" 
+                               value="{% if portfolio %}{{ portfolio.client }}{% endif %}">
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap -mx-4 mb-3">
+                    <div class="w-full md:w-1/2 px-4">
+                        <label for="url" class="block text-sm font-medium mb-1 text-gray-300">Project URL</label>
+                        <input type="url" class="form-control" id="url" name="url" 
+                               value="{% if portfolio %}{{ portfolio.url }}{% endif %}"
+                               placeholder="https://example.com">
+                    </div>
+                    <div class="w-full md:w-1/2 px-4">
+                        <label class="block text-sm font-medium mb-1 text-gray-300">Featured Project</label>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_pinned" name="is_pinned"
+                                       {% if portfolio.is_pinned %}checked{% endif %}>
+                                <label class="form-check-label" for="is_pinned">
+                                    Pin this portfolio as featured
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="block text-sm font-medium mb-1 text-gray-300">Description *</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required>{% if portfolio %}{{ portfolio.description }}{% endif %}</textarea>
+                    <small class="text-gray-400">Short summary for portfolio cards</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="long_description" class="block text-sm font-medium mb-1 text-gray-300">Long Description</label>
+                    <textarea class="form-control" id="long_description" name="long_description" rows="5">{% if portfolio %}{{ portfolio.long_description }}{% endif %}</textarea>
+                    <small class="text-gray-400">Detailed case study and project information</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image" class="block text-sm font-medium mb-1 text-gray-300">Portfolio Image</label>
+                    {% if portfolio.image %}
+                        <div class="mb-2">
+                            <img src="{{ portfolio.image.url }}" alt="Portfolio" style="max-height: 200px; object-fit: cover;">
+                        </div>
+                    {% endif %}
+                    <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                    <small class="text-gray-400">Upload a new image to replace the current one</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="tags" class="block text-sm font-medium mb-1 text-gray-300">Tags / Skills</label>
+                    <div class="border border-borderColor p-3 rounded" style="max-height: 200px; overflow-y: auto;">
+                            <div class="flex items-center gap-2 mb-2">
+                                <input type="checkbox" id="tag_React" name="tags" value="React" {% if "React" in portfolio.tags %}checked{% endif %}>
+                                <label for="tag_React">React</label>
+                            </div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <input type="checkbox" id="tag_Django" name="tags" value="Django" {% if "Django" in portfolio.tags %}checked{% endif %}>
+                                <label for="tag_Django">Django</label>
+                            </div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <input type="checkbox" id="tag_Python" name="tags" value="Python" {% if "Python" in portfolio.tags %}checked{% endif %}>
+                                <label for="tag_Python">Python</label>
+                            </div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <input type="checkbox" id="tag_Tailwind" name="tags" value="Tailwind CSS" {% if "Tailwind CSS" in portfolio.tags %}checked{% endif %}>
+                                <label for="tag_Tailwind">Tailwind CSS</label>
+                            </div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <input type="checkbox" id="tag_PostgreSQL" name="tags" value="PostgreSQL" {% if "PostgreSQL" in portfolio.tags %}checked{% endif %}>
+                                <label for="tag_PostgreSQL">PostgreSQL</label>
+                            </div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <input type="checkbox" id="tag_Nextjs" name="tags" value="Next.js" {% if "Next.js" in portfolio.tags %}checked{% endif %}>
+                                <label for="tag_Nextjs">Next.js</label>
+                            </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer btn-primary me-2">
+                        {% if portfolio %}Update Portfolio{% else %}Create Portfolio{% endif %}
+                    </button>
+                    <a href="{% url 'admin_panel:portfolio_list' %}" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer bg-[#333] text-white hover:bg-[#444] border border-borderColor">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

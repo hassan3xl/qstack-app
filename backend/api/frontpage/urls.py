@@ -1,0 +1,14 @@
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .view import StaffViewSet, JobViewSet, PortfolioViewSet, ContactCreateView
+
+router = DefaultRouter()
+router.register(r'staff', StaffViewSet, basename='staff')
+router.register(r'jobs', JobViewSet, basename='jobs')
+router.register(r'portfolio', PortfolioViewSet, basename='portfolio')
+
+urlpatterns = [
+    path('', include(router.urls)),
+    path('contact/', ContactCreateView.as_view(), name='contact-create'),
+
+]

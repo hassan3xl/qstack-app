@@ -1,0 +1,96 @@
+{% extends 'base.html' %} {% block title %}Edit Profile{% endblock %} {% block
+page_title %}Edit Profile{% endblock %} {% block sidebar %}
+<a href="{% url 'users:dashboard' %}">Dashboard</a>
+<a href="{% url 'users:profile' %}" class="">Profile</a>
+{% if staff_profile %}
+<a href="{% url 'users:staff_profile' %}">Staff Profile</a>
+{% endif %}
+<a href="{% url 'notifications:list' %}">Notifications</a>
+{% if user.is_staff %}
+<hr class="bg-white" />
+<a href="{% url 'admin_panel:dashboard' %}">Admin Panel</a>
+{% endif %} {% endblock %} {% block content %}
+<div class="w-full">
+  <div class="flex flex-wrap -mx-4">
+    <div class="w-full md:w-2/3 px-4">
+      <div class="card">
+        <div class="px-6 py-4 border-b border-borderColor bg-black/20">
+          <h5>Edit Profile Information</h5>
+        </div>
+        <div class="p-6">
+          <form method="post" class="" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="first_name" class="block text-sm font-medium mb-1 text-gray-300">First Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="first_name"
+                name="first_name"
+                value="{{ user.first_name }}"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="last_name" class="block text-sm font-medium mb-1 text-gray-300">Last Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="last_name"
+                name="last_name"
+                value="{{ user.last_name }}"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="email" class="block text-sm font-medium mb-1 text-gray-300">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                value="{{ user.email }}"
+                required
+              />
+            </div>
+            <div class="grid gap-2 d-md-flex md:justify-start">
+              <button type="submit" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer btn-primary">
+                Save Changes
+              </button>
+              <a href="{% url 'users:dashboard' %}" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer bg-[#333] text-white hover:bg-[#444] border border-borderColor"
+                >Cancel</a
+              >
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    "use strict";
+    window.addEventListener(
+      "load",
+      function () {
+        var forms = document.querySelectorAll(".needs-validation");
+        Array.prototype.slice.call(forms).forEach(function (form) {
+          form.addEventListener(
+            "submit",
+            function (event) {
+              if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add("was-validated");
+            },
+            false,
+          );
+        });
+      },
+      false,
+    );
+  })();
+</script>
+{% endblock %}

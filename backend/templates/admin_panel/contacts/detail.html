@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Contact Detail{% endblock %}
+{% block page_title %}Contact Submission{% endblock %}
+
+{% block sidebar %}
+    <a href="{% url 'users:dashboard' %}" class="sidebar-link">Dashboard</a>
+    <a href="{% url 'users:profile' %}" class="sidebar-link">Profile</a>
+    {% if staff_profile %}
+        <a href="{% url 'users:staff_profile' %}" class="sidebar-link">Staff Profile</a>
+    {% endif %}
+    <a href="{% url 'notifications:list' %}" class="sidebar-link">Notifications</a>
+    {% if user.is_staff %}
+        <div class="my-2 border-t border-borderColor"></div>
+        <a href="{% url 'admin_panel:dashboard' %}" class="sidebar-link">Dashboard</a>
+        <a href="{% url 'admin_panel:member_list' %}" class="sidebar-link">Members</a>
+        <a href="{% url 'admin_panel:job_list' %}" class="sidebar-link">Jobs</a>
+        <a href="{% url 'admin_panel:portfolio_list' %}" class="sidebar-link">Portfolios</a>
+        <a href="{% url 'admin_panel:contact_list' %}" class="sidebar-link active">Contacts</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  <div class="flex flex-wrap -mx-4 mb-4">
+    <div class="w-full px-4">
+      <a href="{% url 'admin_panel:contact_list' %}" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer bg-[#333] text-white hover:bg-[#444] border border-borderColor"
+        >Back to Contacts</a
+      >
+    </div>
+  </div>
+
+  <div class="flex flex-wrap -mx-4">
+    <div class="w-full md:w-2/3 px-4">
+      <div class="card">
+        <div class="px-6 py-4 border-b border-borderColor bg-black/20">
+          <h5>{{ contact.subject }}</h5>
+        </div>
+        <div class="p-6">
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0">Name</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">{{ contact.name }}</div>
+          </div>
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0">Email</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">
+              <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+            </div>
+          </div>
+          {% if contact.phone %}
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0">Phone</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">
+              <a href="tel:{{ contact.phone }}">{{ contact.phone }}</a>
+            </div>
+          </div>
+          {% endif %}
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0">Submitted</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">
+              {{ contact.created_at|date:"F d, Y H:i" }}
+            </div>
+          </div>
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0">Message</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">
+              <p class="text-gray-400">{{ contact.message }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

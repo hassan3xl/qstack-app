@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Dashboard{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              bgDark: "#121212",
+              cardDark: "#1e1e1e",
+              textLight: "#e0e0e0",
+              gold: "#FFD700",
+              green: "#00C853",
+              red: "#FF3D00",
+              borderColor: "#333",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- HTMX & Alpine.js -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+
+    <!-- NProgress for page transition loading bar -->
+    <script src="https://unpkg.com/nprogress@0.2.0/nprogress.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/nprogress@0.2.0/nprogress.css"
+    />
+
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          @apply bg-bgDark text-textLight;
+        }
+      }
+      @layer components {
+        .sidebar-link {
+          @apply block px-5 py-3 text-textLight transition-all duration-300 hover:bg-gold/10 hover:text-gold hover:pl-6;
+        }
+        .sidebar-link.active {
+          @apply bg-green/10 border-l-4 border-green text-green;
+        }
+        .btn-primary {
+          @apply bg-gradient-to-br from-green to-[#009624] text-white px-4 py-2 rounded shadow hover:shadow-[0_4px_10px_rgba(0,200,83,0.3)] hover:-translate-y-0.5 transition-all font-medium;
+        }
+        .card {
+          @apply bg-cardDark border border-borderColor rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.3)] text-textLight overflow-hidden;
+        }
+        .form-control {
+          @apply w-full bg-[#2a2a2a] border border-borderColor text-textLight rounded px-4 py-2 focus:bg-[#333] focus:border-green focus:ring-2 focus:ring-green/25 focus:outline-none transition-all;
+        }
+      }
+
+      /* NProgress custom color */
+      #nprogress .bar {
+        background: var(--gold) !important;
+      }
+      #nprogress .peg {
+        box-shadow:
+          0 0 10px var(--gold),
+          0 0 5px var(--gold) !important;
+      }
+      #nprogress .spinner-icon {
+        border-top-color: var(--gold) !important;
+        border-left-color: var(--gold) !important;
+      }
+    </style>
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body hx-boost="true" class="antialiased flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <div
+      class="w-64 bg-gradient-to-br from-[#0f0f0f] to-[#1a1a1a] border-r border-borderColor h-full flex flex-col shrink-0"
+    >
+      <h5 class="text-gold font-bold tracking-wide px-5 py-6 text-xl">
+        QStack
+      </h5>
+      <nav class="flex-1 overflow-y-auto flex flex-col">
+        <!-- Re-map the block sidebar to use sidebar-link classes inside the child templates -->
+        {% block sidebar %}{% endblock %}
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+      <!-- Navbar -->
+      <nav
+        class="bg-cardDark border-b border-borderColor shadow px-6 py-4 flex justify-between items-center shrink-0"
+      >
+        <span class="text-gold font-bold text-xl">
+          {% block page_title %}Dashboard{% endblock %}
+        </span>
+
+        <div x-data="{ open: false }" class="relative">
+          <button
+            @click="open = !open"
+            @click.away="open = false"
+            class="text-textLight hover:text-gold flex items-center gap-2 focus:outline-none"
+          >
+            {% if user.is_authenticated %}
+              {{ user.username }}
+            {% else %}
+              Account
+            {% endif %}
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              ></path>
+            </svg>
+          </button>
+
+          <div
+            x-show="open"
+            x-transition.opacity
+            class="absolute right-0 mt-2 w-48 bg-cardDark border border-borderColor rounded shadow-lg py-1 z-50"
+            style="display: none"
+          >
+            <a
+              href="{% url 'users:dashboard' %}"
+              class="block px-4 py-2 text-textLight hover:bg-gold/10 hover:text-gold"
+              >My Profile</a
+            >
+            <div class="border-t border-borderColor my-1"></div>
+            <a
+              href="{% url 'logout' %}"
+              hx-boost="false"
+              class="block px-4 py-2 text-textLight hover:bg-gold/10 hover:text-gold"
+              >Logout</a
+            >
+          </div>
+        </div>
+      </nav>
+
+      <!-- Scrollable content area -->
+      <main class="flex-1 overflow-y-auto p-6 relative" id="main-content">
+        {% if messages %}
+          {% for message in messages %}
+        <div
+          x-data="{ show: true }"
+          x-show="show"
+          class="mb-4 bg-cardDark border-l-4 {% if message.tags == 'error' %}border-red{% else %}border-green{% endif %} text-textLight p-4 flex justify-between items-center rounded shadow"
+          role="alert"
+        >
+          <div>{{ message }}</div>
+          <button
+            @click="show = false"
+            class="text-textLight hover:text-gold focus:outline-none"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+          {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+
+    <script>
+      // HTMX config with NProgress
+      document.body.addEventListener("htmx:configRequest", (event) => {
+        NProgress.start();
+      });
+      document.body.addEventListener("htmx:afterRequest", (event) => {
+        NProgress.done();
+      });
+      // Handle Django messages injected via HTMX responses (if any)
+    </script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

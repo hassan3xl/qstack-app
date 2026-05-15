@@ -1,0 +1,90 @@
+{% extends 'base.html' %} {% block title %}Staff Profile{% endblock %} {% block
+page_title %}Staff Profile{% endblock %} {% block sidebar %}
+<a href="{% url 'users:dashboard' %}">Dashboard</a>
+<a href="{% url 'users:profile' %}">Profile</a>
+<a href="{% url 'users:staff_profile' %}" class="">Staff Profile</a>
+<a href="{% url 'notifications:list' %}">Notifications</a>
+{% if user.is_staff %}
+<hr class="bg-white" />
+<a href="{% url 'admin_panel:dashboard' %}">Admin Panel</a>
+{% endif %} {% endblock %} {% block content %}
+<div class="w-full">
+  <div class="flex flex-wrap -mx-4">
+    <div class="w-full md:w-2/3 px-4">
+      <div class="card">
+        <div
+          class="px-6 py-4 border-b border-borderColor bg-black/20 flex justify-between items-center"
+        >
+          <h5>Staff Profile</h5>
+          <a
+            href="{% url 'users:staff_profile_edit' %}"
+            class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer text-sm px-3 py-1 btn-primary"
+            >Edit</a
+          >
+        </div>
+        <div class="p-6">
+          <div class="flex flex-wrap -mx-4 mb-4">
+            <div class="w-full md:w-1/4 px-4 text-center">
+              {% if staff_profile.avatar %}
+              <img
+                src="{{ staff_profile.avatar.url }}"
+                alt="Avatar"
+                class="rounded-full"
+                width="150"
+                style="object-fit: cover; height: 150px"
+              />
+              {% else %}
+              <div
+                class="rounded-full bg-gray-600 text-white inline-flex items-center justify-center"
+                style="width: 150px; height: 150px"
+              >
+                <span class="text-white" style="font-size: 2rem"
+                  >{{ staff_profile.user.first_name|first|upper }}{{
+                  staff_profile.user.last_name|first|upper }}</span
+                >
+              </div>
+              {% endif %}
+            </div>
+            <div class="col-md-9">
+              <h4>{{ staff_profile.user.get_full_name }}</h4>
+              {% if staff_profile.role %}
+              <p><strong>Role:</strong> {{ staff_profile.role.name }}</p>
+              {% endif %}
+              <p>
+                <strong>Status:</strong>
+                {% if staff_profile.active_status == 'active' %}
+                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green text-white">Active</span>
+                {% else %}
+                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red text-white"
+                  >{{ staff_profile.active_status }}</span
+                >
+                {% endif %}
+              </p>
+            </div>
+          </div>
+
+          {% if staff_profile.bio %}
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full px-4">
+              <strong>Bio:</strong>
+              <p class="text-gray-400">{{ staff_profile.bio }}</p>
+            </div>
+          </div>
+          {% endif %} {% if staff_profile.skills.all %}
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full px-4">
+              <strong>Skills:</strong>
+              <div>
+                {% for skill in staff_profile.skills.all %}
+                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-500 text-white">{{ skill.name }}</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

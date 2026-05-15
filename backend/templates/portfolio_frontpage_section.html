@@ -1,0 +1,134 @@
+<!-- Portfolio Section Component for Frontpage -->
+<!-- This is a sample HTML template that can be integrated into your frontpage -->
+
+<section class="py-16 bg-gray-50" id="portfolio">
+    <div class="container mx-auto px-4">
+        <h2 class="text-4xl font-bold mb-3 text-center text-gray-900">Our Portfolio</h2>
+        <p class="text-center text-gray-600 mb-10 text-lg">Check out our latest projects and case studies</p>
+        
+        <!-- Filter Controls -->
+        <div class="flex justify-center gap-4 flex-wrap mb-12">
+            <button class="filter-btn px-5 py-2 border-2 border-gray-300 bg-white rounded-full cursor-pointer transition-all duration-300 font-medium hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50 active-filter" data-filter="all">All</button>
+            <button class="filter-btn px-5 py-2 border-2 border-gray-300 bg-white rounded-full cursor-pointer transition-all duration-300 font-medium hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50" data-filter="live">Live</button>
+            <button class="filter-btn px-5 py-2 border-2 border-gray-300 bg-white rounded-full cursor-pointer transition-all duration-300 font-medium hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50" data-filter="development">In Development</button>
+            <button class="filter-btn px-5 py-2 border-2 border-gray-300 bg-white rounded-full cursor-pointer transition-all duration-300 font-medium hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50" data-filter="pinned">Featured</button>
+        </div>
+        
+        <!-- Portfolio Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="portfolioGrid">
+            <!-- Portfolios will be loaded here by JavaScript -->
+            <div class="col-span-full text-center py-10 text-gray-400">Loading portfolios...</div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const portfolioGrid = document.getElementById('portfolioGrid');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    let currentFilter = 'all';
+    
+    // Add custom class for active state handling
+    const activeClasses = ['border-blue-500', 'text-blue-500', 'bg-blue-50'];
+    
+    // Set initial active state
+    filterBtns.forEach(btn => {
+        if (btn.dataset.filter === 'all') {
+            btn.classList.add(...activeClasses);
+        }
+    });
+    
+    // Load portfolios from API
+    async function loadPortfolios(filter = 'all') {
+        try {
+            portfolioGrid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">Loading portfolios...</div>';
+            
+            let url = '/api/portfolio/';
+            
+            if (filter === 'live') {
+                url += '?status=live';
+            } else if (filter === 'development') {
+                url += '?status=development';
+            } else if (filter === 'pinned') {
+                url += '?pinned=true';
+            }
+            
+            const response = await fetch(url);
+            const portfolios = await response.json();
+            
+            if (!portfolios || portfolios.length === 0) {
+                portfolioGrid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">No portfolios found</div>';
+                return;
+            }
+            
+            portfolioGrid.innerHTML = '';
+            portfolios.forEach(portfolio => {
+                const card = createPortfolioCard(portfolio);
+                portfolioGrid.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Error loading portfolios:', error);
+            portfolioGrid.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400">Error loading portfolios</div>';
+        }
+    }
+    
+    // Create portfolio card element
+    function createPortfolioCard(portfolio) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 flex flex-col';
+        
+        const imageHtml = portfolio.image 
+            ? `<img src="${portfolio.image}" alt="${portfolio.title}" class="w-full h-48 object-cover bg-gray-200">`
+            : '<div class="w-full h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">No Image</div>';
+        
+        const tagsHtml = portfolio.tags && portfolio.tags.length > 0
+            ? portfolio.tags.map(tag => `<span class="inline-block px-3 py-1 bg-gray-100 rounded-full text-xs text-gray-600">${tag}</span>`).join('')
+            : '';
+        
+        const featuredBadge = portfolio.is_pinned 
+            ? '<div class="absolute top-3 right-3 bg-yellow-400 text-gray-900 px-3 py-1 rounded text-xs font-bold shadow-sm">Featured</div>'
+            : '';
+        
+        const categoryName = portfolio.category ? portfolio.category : 'Uncategorized';
+        
+        const viewLink = portfolio.url 
+            ? `<a href="${portfolio.url}" target="_blank" class="text-blue-500 font-semibold transition-colors hover:text-blue-700">View →</a>`
+            : '<span class="text-gray-300 font-semibold">View →</span>';
+        
+        card.innerHTML = `
+            <div class="relative">
+                ${imageHtml}
+                ${featuredBadge}
+            </div>
+            <div class="p-5 flex-1 flex flex-col">
+                <div class="inline-block text-xs text-gray-400 mb-3 uppercase tracking-wider font-semibold">${categoryName}</div>
+                <h3 class="text-xl font-bold mb-2 text-gray-800">${portfolio.title}</h3>
+                <p class="text-gray-600 text-sm mb-4 leading-relaxed flex-1">${portfolio.description}</p>
+                <div class="flex gap-2 flex-wrap mb-4">
+                    ${tagsHtml}
+                </div>
+                <div class="flex justify-between items-center pt-4 border-t border-gray-100 mt-auto">
+                    <span class="text-sm text-gray-500 font-medium">${portfolio.client || 'Client'}</span>
+                    ${viewLink}
+                </div>
+            </div>
+        `;
+        
+        return card;
+    }
+    
+    // Filter button click handlers
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove(...activeClasses));
+            this.classList.add(...activeClasses);
+            
+            currentFilter = this.dataset.filter;
+            loadPortfolios(currentFilter);
+        });
+    });
+    
+    // Load initial portfolios
+    loadPortfolios();
+});
+</script>

@@ -1,0 +1,180 @@
+{% extends 'base.html' %} {% block title %}{{ portfolio.title }}{% endblock %}
+{% block page_title %}Portfolio Detail{% endblock %}
+
+{% block sidebar %}
+    <a href="{% url 'users:dashboard' %}" class="sidebar-link">Dashboard</a>
+    <a href="{% url 'users:profile' %}" class="sidebar-link">Profile</a>
+    {% if staff_profile %}
+        <a href="{% url 'users:staff_profile' %}" class="sidebar-link">Staff Profile</a>
+    {% endif %}
+    <a href="{% url 'notifications:list' %}" class="sidebar-link">Notifications</a>
+    {% if user.is_staff %}
+        <div class="my-2 border-t border-borderColor"></div>
+        <a href="{% url 'admin_panel:dashboard' %}" class="sidebar-link">Dashboard</a>
+        <a href="{% url 'admin_panel:member_list' %}" class="sidebar-link">Members</a>
+        <a href="{% url 'admin_panel:job_list' %}" class="sidebar-link">Jobs</a>
+        <a href="{% url 'admin_panel:portfolio_list' %}" class="sidebar-link active">Portfolios</a>
+        <a href="{% url 'admin_panel:contact_list' %}" class="sidebar-link">Contacts</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full" x-data="{ showDeleteModal: false }">
+  <div class="flex flex-wrap -mx-4 mb-4">
+    <div class="w-full px-4">
+      <a href="{% url 'admin_panel:portfolio_list' %}" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer bg-[#333] text-white hover:bg-[#444] border border-borderColor">
+        <i class="fas fa-arrow-left"></i> Back to Portfolios
+      </a>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap -mx-4">
+    <div class="w-full md:w-2/3 px-4">
+      <div class="card">
+        <div class="px-6 py-4 border-b border-borderColor bg-black/20 flex justify-between items-center">
+          <h5 class="mb-0">{{ portfolio.title }}</h5>
+          <div class="btn-group btn-group-sm" role="group">
+            <a href="{% url 'admin_panel:portfolio_edit' portfolio.id %}" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer btn-warning">
+              <i class="fas fa-edit"></i> Edit
+            </a>
+            <button type="button" @click="showDeleteModal = true" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer bg-red text-white hover:bg-red-600">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+        <div class="p-6">
+          {% if portfolio.image %}
+          <div class="mb-4">
+            <img
+              src="{{ portfolio.image.url }}"
+              alt="Portfolio Image"
+              class="img-fluid rounded"
+              style="max-height: 400px; object-fit: cover; width: 100%;"
+            />
+          </div>
+          {% endif %}
+
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0 text-gray-400">Category</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">
+              <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-500 text-white">{{ portfolio.category|default:"No category" }}</span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0 text-gray-400">Status</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">
+              {% if portfolio.status == 'live' %}
+                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green text-white">Live</span>
+              {% elif portfolio.status == 'development' %}
+                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gold text-black">In Development</span>
+              {% else %}
+                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-600 text-white">Managing</span>
+              {% endif %}
+            </div>
+          </div>
+
+          {% if portfolio.is_pinned %}
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0 text-gray-400">Featured</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">
+              <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green text-white"><i class="fas fa-star"></i> Featured</span>
+            </div>
+          </div>
+          {% endif %}
+
+          {% if portfolio.client %}
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0 text-gray-400">Client</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">{{ portfolio.client }}</div>
+          </div>
+          {% endif %}
+
+          {% if portfolio.url %}
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0 text-gray-400">URL</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">
+              <a href="{{ portfolio.url }}" target="_blank" rel="noopener noreferrer">
+                {{ portfolio.url }} <i class="fas fa-external-link-alt"></i>
+              </a>
+            </div>
+          </div>
+          {% endif %}
+
+          <hr>
+
+          <div class="mb-3">
+            <h6 class="mb-2 text-gray-400">Description</h6>
+            <p class="mb-0">{{ portfolio.description|default:"--" }}</p>
+          </div>
+
+          {% if portfolio.long_description %}
+          <div class="mb-3">
+            <h6 class="mb-2 text-gray-400">Case Study</h6>
+            <p class="mb-0" style="white-space: pre-wrap;">{{ portfolio.long_description }}</p>
+          </div>
+          {% endif %}
+
+          {% if portfolio.tags %}
+          <div class="mb-3">
+            <h6 class="mb-2 text-gray-400">Tags & Skills</h6>
+            <div>
+              {% for tag in portfolio.tags %}
+              <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-600 text-white me-2 mb-2">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <hr>
+
+          <div class="flex flex-wrap -mx-4">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0 text-gray-400">Created</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">{{ portfolio.created_at|date:"F d, Y \a\t H:i" }}</div>
+          </div>
+          <div class="flex flex-wrap -mx-4 mt-2">
+            <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0 text-gray-400">Updated</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">{{ portfolio.updated_at|date:"F d, Y \a\t H:i" }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div x-show="showDeleteModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div @click.away="showDeleteModal = false" class="bg-cardDark border border-borderColor rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+      <div class="px-6 py-4 border-b border-borderColor bg-black/20 flex justify-between items-center">
+        <h5 class="text-lg font-bold text-white mb-0">Delete Portfolio</h5>
+        <button type="button" @click="showDeleteModal = false" class="text-gray-400 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="p-6 text-textLight">
+        Are you sure you want to delete <strong>{{ portfolio.title }}</strong>? This action cannot be undone.
+      </div>
+      <div class="px-6 py-4 border-t border-borderColor flex justify-end gap-3 bg-black/20">
+        <button type="button" @click="showDeleteModal = false" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer bg-[#333] text-white hover:bg-[#444] border border-borderColor">Cancel</button>
+        <form method="post" action="{% url 'admin_panel:portfolio_delete' portfolio.id %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer bg-red text-white hover:bg-red-600">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

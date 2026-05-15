@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+{% block page_title %}Login{% endblock %}
+
+{% block sidebar %}
+<!-- Minimal sidebar for login page -->
+<div class="p-3 text-white">
+  <p>Please login to access your dashboard.</p>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10">
+    <div class="card p-8">
+        <h4 class="text-2xl font-bold text-center text-gold mb-8">Secure Login</h4>
+        
+        <form method="post" action="{% url 'login' %}" class="flex flex-col gap-6">
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="bg-red/10 border-l-4 border-red text-textLight p-4 rounded" role="alert">
+                Your email and password didn't match. Please try again.
+            </div>
+            {% endif %}
+
+            <div class="flex flex-col gap-2">
+                <label for="id_username" class="text-sm font-medium text-gray-400">Email Address</label>
+                <input type="email" name="username" class="form-control" id="id_username" placeholder="name@company.com" required>
+            </div>
+            
+            <div class="flex flex-col gap-2">
+                <label for="id_password" class="text-sm font-medium text-gray-400">Password</label>
+                <input type="password" name="password" class="form-control" id="id_password" placeholder="••••••••" required>
+            </div>
+            
+            <input type="hidden" name="next" value="{{ next|default:'/' }}">
+            
+            <button type="submit" class="btn-primary w-full py-3 mt-2 text-lg">Login</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

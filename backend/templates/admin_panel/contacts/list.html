@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Contacts Management{% endblock %}
+{% block page_title %}Contacts Management{% endblock %}
+{% block sidebar %}
+    <a href="{% url 'users:dashboard' %}" class="sidebar-link">Dashboard</a>
+    <a href="{% url 'users:profile' %}" class="sidebar-link">Profile</a>
+    {% if staff_profile %}
+        <a href="{% url 'users:staff_profile' %}" class="sidebar-link">Staff Profile</a>
+    {% endif %}
+    <a href="{% url 'notifications:list' %}" class="sidebar-link">Notifications</a>
+    {% if user.is_staff %}
+        <div class="my-2 border-t border-borderColor"></div>
+        <a href="{% url 'admin_panel:dashboard' %}" class="sidebar-link">Dashboard</a>
+        <a href="{% url 'admin_panel:member_list' %}" class="sidebar-link">Members</a>
+        <a href="{% url 'admin_panel:job_list' %}" class="sidebar-link">Jobs</a>
+        <a href="{% url 'admin_panel:portfolio_list' %}" class="sidebar-link">Portfolios</a>
+        <a href="{% url 'admin_panel:contact_list' %}" class="sidebar-link active">Contacts</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  <div class="card">
+    <div class="px-6 py-4 border-b border-borderColor bg-black/20">
+      <h5>Contact Submissions</h5>
+    </div>
+    <div class="overflow-x-auto w-full">
+      <table class="w-full text-left border-collapse mb-0">
+        <thead class="bg-[#222] text-textLight border-b border-borderColor">
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Subject</th>
+            <th>Submitted</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for contact in contacts %}
+          <tr>
+            <td>{{ contact.name }}</td>
+            <td>{{ contact.email }}</td>
+            <td>{{ contact.subject|truncatewords:5 }}</td>
+            <td>{{ contact.created_at|date:"M d, Y H:i" }}</td>
+            <td>
+              <a
+                href="{% url 'admin_panel:contact_detail' contact.id %}"
+                class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer text-sm px-3 py-1 border border-green text-green hover:bg-green hover:text-white"
+                >View</a
+              >
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-gray-400 py-4">
+              No contacts found
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="flex list-none gap-1">
+      {% if page_obj.has_previous %}
+      <li class=""><a class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors" href="?page=1">First</a></li>
+      <li class="">
+        <a class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors" href="?page={{ page_obj.previous_page_number }}"
+          >Previous</a
+        >
+      </li>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+      <li class="bg-green text-white"><span class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors">{{ num }}</span></li>
+        {% else %}
+      <li class="">
+        <a class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors" href="?page={{ num }}">{{ num }}</a>
+      </li>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <li class="">
+        <a class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors" href="?page={{ page_obj.next_page_number }}"
+          >Next</a
+        >
+      </li>
+      <li class="">
+        <a class="block px-3 py-1 bg-[#222] border border-borderColor rounded hover:bg-green hover:text-white transition-colors" href="?page={{ page_obj.paginator.num_pages }}"
+          >Last</a
+        >
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

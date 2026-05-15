@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}{{ member.user.get_full_name }}{% endblock %}
+{% block page_title %}Member Detail{% endblock %}
+{% block sidebar %}
+<a href="{% url 'users:dashboard' %}">Dashboard</a>
+<a href="{% url 'users:profile' %}">Profile</a>
+{% if staff_profile %}
+<a href="{% url 'users:staff_profile' %}">Staff Profile</a>
+{% endif %}
+<a href="{% url 'notifications:list' %}">Notifications</a>
+{% if user.is_staff %}
+<hr class="bg-white" />
+<a href="{% url 'admin_panel:dashboard' %}">Dashboard</a>
+<a href="{% url 'admin_panel:member_list' %}" class="">Members</a>
+<a href="{% url 'admin_panel:job_list' %}">Jobs</a>
+<a href="{% url 'admin_panel:portfolio_list' %}">Portfolios</a>
+<a href="{% url 'admin_panel:contact_list' %}">Contacts</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full">
+  <div class="flex flex-wrap -mx-4 mb-4">
+    <div class="w-full px-4">
+      <a href="{% url 'admin_panel:member_list' %}" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer bg-[#333] text-white hover:bg-[#444] border border-borderColor"
+        >Back to Members</a
+      >
+    </div>
+  </div>
+
+  <div class="flex flex-wrap -mx-4">
+    <div class="w-full md:w-2/3 px-4">
+      <div class="card mb-4">
+        <div class="px-6 py-4 border-b border-borderColor bg-black/20">
+          <h5>Member Information</h5>
+        </div>
+        <div class="p-6">
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full md:w-1/4 px-4">
+              {% if member.avatar %}
+              <img
+                src="{{ member.avatar.url }}"
+                alt="Avatar"
+                class="rounded-full mb-2"
+                width="150"
+                style="object-fit: cover; height: 150px"
+              />
+              {% else %}
+              <div
+                class="rounded-full bg-gray-600 text-white inline-flex items-center justify-center mb-2"
+                style="width: 150px; height: 150px"
+              >
+                <span class="text-white" style="font-size: 2rem"
+                  >{{ member.user.first_name|first|upper }}{{
+                  member.user.last_name|first|upper }}</span
+                >
+              </div>
+              {% endif %}
+            </div>
+            <div class="col-md-9">
+              <h4>{{ member.user.get_full_name }}</h4>
+              <p><strong>Email:</strong> {{ member.user.email }}</p>
+              <p><strong>Role:</strong> {{ member.role.name|default:"--" }}</p>
+              <p>
+                <strong>Status:</strong>
+                {% if member.active_status == 'active' %}
+                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green text-white">Active</span>
+                {% else %}
+                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red text-white">{{ member.active_status }}</span>
+                {% endif %}
+              </p>
+              <p>
+                <strong>Joined:</strong> {{ member.created_at|date:"F d, Y" }}
+              </p>
+            </div>
+          </div>
+
+          {% if member.bio %}
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full px-4">
+              <h6>Bio</h6>
+              <p class="text-gray-400">{{ member.bio }}</p>
+            </div>
+          </div>
+          {% endif %}
+          {% if member.skills.all %}
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full px-4">
+              <h6>Skills</h6>
+              {% for skill in member.skills.all %}
+              <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-500 text-white">{{ skill.name }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full md:w-1/3 px-4">
+      <div class="card">
+        <div class="px-6 py-4 border-b border-borderColor bg-black/20">
+          <h5>Actions</h5>
+        </div>
+        <div class="p-6 grid gap-2">
+          {% if member.active_status != 'active' %}
+          <form
+            method="post"
+            action="{% url 'admin_panel:member_activate' member.id %}"
+          >
+            {% csrf_token %}
+            <button type="submit" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer bg-green text-white hover:bg-green-600 w-full">
+              Activate Member
+            </button>
+          </form>
+          {% endif %}
+          {% if member.active_status == 'active' %}
+          <form
+            method="post"
+            action="{% url 'admin_panel:member_suspend' member.id %}"
+          >
+            {% csrf_token %}
+            <button type="submit" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer bg-red text-white hover:bg-red-600 w-full">
+              Suspend Member
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

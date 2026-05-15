@@ -1,0 +1,99 @@
+{% extends 'base.html' %} {% block title %}Notifications{% endblock %} {% block
+page_title %}Notifications{% endblock %} {% block sidebar %}
+<a href="{% url 'users:dashboard' %}">Dashboard</a>
+<a href="{% url 'users:profile' %}">Profile</a>
+{% if staff_profile %}
+<a href="{% url 'users:staff_profile' %}">Staff Profile</a>
+{% endif %}
+<a href="{% url 'notifications:list' %}" class="">Notifications</a>
+{% if user.is_staff %}
+<hr class="bg-white" />
+<a href="{% url 'admin_panel:dashboard' %}">Admin Panel</a>
+{% endif %} {% endblock %} {% block content %}
+<div class="w-full">
+  <div class="flex flex-wrap -mx-4">
+    <div class="w-full md:w-2/3 px-4">
+      <div class="card">
+        <div
+          class="px-6 py-4 border-b border-borderColor bg-black/20 flex justify-between items-center"
+        >
+          <h5>Your Notifications</h5>
+          {% if unread_count > 0 %}
+          <form
+            method="post"
+            action="{% url 'notifications:mark_all_as_read' %}"
+            style="display: inline"
+          >
+            {% csrf_token %}
+            <button type="submit" class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer text-sm px-3 py-1 border border-green text-green hover:bg-green hover:text-white">
+              Mark All as Read
+            </button>
+          </form>
+          {% endif %}
+        </div>
+        <div class="list-group list-group-flush">
+          {% if notifications %} {% for notification in notifications %}
+          <div
+            class="list-group-item {% if not notification.read %}bg-light{% endif %}"
+          >
+            <div class="flex w-full justify-between align-items-start">
+              <div class="flex-grow-1">
+                <a
+                  href="{% url 'notifications:detail' notification.id %}"
+                  class="text-decoration-none"
+                >
+                  <h6 class="mb-1">{{ notification.title }}</h6>
+                </a>
+                <p class="mb-1 text-gray-400">
+                  {{ notification.message|truncatewords:20 }}
+                </p>
+                <small class="text-gray-400"
+                  >{{ notification.created_at|date:"M d, Y H:i" }}</small
+                >
+              </div>
+              <div>
+                {% if not notification.read %}
+                <form
+                  method="post"
+                  action="{% url 'notifications:mark_as_read' notification.id %}"
+                  style="display: inline"
+                >
+                  {% csrf_token %}
+                  <button
+                    type="submit"
+                    class="inline-block px-4 py-2 rounded font-medium transition-colors text-center cursor-pointer text-sm px-3 py-1 border border-green text-green hover:bg-green hover:text-white"
+                    title="Mark as read"
+                  >
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green text-white">New</span>
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %} {% else %}
+          <div class="list-group-item">
+            <p class="text-gray-400 mb-0">You have no notifications.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full md:w-1/3 px-4">
+      <div class="card">
+        <div class="p-6">
+          <div class="stat-card">
+            <div class="stat-value">{{ unread_count }}</div>
+            <div class="stat-label">Unread Notifications</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ notifications.count }}</div>
+            <div class="stat-label">Total Notifications</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

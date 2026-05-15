@@ -1,0 +1,106 @@
+{% extends 'base.html' %} 
+{% block title %}User Dashboard{% endblock %} 
+{% block page_title %}Dashboard{% endblock %} 
+
+{% block sidebar %}
+<a href="{% url 'users:dashboard' %}" class="sidebar-link">Dashboard</a>
+<a href="{% url 'users:profile_edit' %}" class="sidebar-link">Profile</a>
+{% if staff_profile %}
+<a href="{% url 'users:staff_profile' %}" class="sidebar-link">Staff Profile</a>
+{% endif %}
+<a href="{% url 'notifications:list' %}" class="sidebar-link">Notifications</a>
+{% if user.is_staff %}
+<div class="my-2 border-t border-borderColor"></div>
+<a href="{% url 'admin_panel:dashboard' %}" class="sidebar-link">Admin Panel</a>
+{% endif %} 
+{% endblock %} 
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+  <div class="flex flex-col md:flex-row gap-6">
+    <!-- Left Column -->
+    <div class="w-full md:w-2/3 flex flex-col gap-6">
+      
+      <div class="card p-6">
+        <h5 class="text-xl font-bold text-gold mb-2">Welcome, {{ user.get_full_name }}!</h5>
+        <p class="text-textLight opacity-80">
+          This is your personal dashboard. Manage your profile and view your activities.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="px-6 py-4 border-b border-borderColor bg-black/20">
+          <h5 class="text-lg font-semibold text-gold">Account Information</h5>
+        </div>
+        <div class="p-6 flex flex-col gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="text-sm font-medium text-gray-400">First Name</div>
+            <div class="sm:col-span-2 text-textLight">{{ user.first_name|default:"Not set" }}</div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="text-sm font-medium text-gray-400">Last Name</div>
+            <div class="sm:col-span-2 text-textLight">{{ user.last_name|default:"Not set" }}</div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="text-sm font-medium text-gray-400">Email</div>
+            <div class="sm:col-span-2 text-textLight">{{ user.email }}</div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="text-sm font-medium text-gray-400">Member Since</div>
+            <div class="sm:col-span-2 text-textLight">{{ user.date_joined|date:"F d, Y" }}</div>
+          </div>
+          <div class="mt-4">
+            <a href="{% url 'users:profile_edit' %}" class="btn-primary inline-block">Edit Profile</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="w-full md:w-1/3 flex flex-col gap-6">
+      {% if staff_profile %}
+      <div class="card">
+        <div class="px-6 py-4 border-b border-borderColor bg-black/20">
+          <h5 class="text-lg font-semibold text-gold">Staff Information</h5>
+        </div>
+        <div class="p-6 flex flex-col items-center text-center">
+          <div class="mb-4">
+            {% if staff_profile.avatar %}
+            <img src="{{ staff_profile.avatar.url }}" alt="Avatar" class="w-24 h-24 rounded-full object-cover border-2 border-gold shadow-[0_0_10px_rgba(255,215,0,0.3)]" />
+            {% else %}
+            <div class="w-24 h-24 rounded-full bg-[#333] flex items-center justify-center border-2 border-gold shadow-[0_0_10px_rgba(255,215,0,0.3)]">
+              <span class="text-2xl text-gold font-bold">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+            </div>
+            {% endif %}
+          </div>
+          {% if staff_profile.role %}
+          <p class="mb-2"><span class="text-gray-400">Role:</span> <span class="font-medium">{{ staff_profile.role.name }}</span></p>
+          {% endif %}
+          <p class="mb-6 flex items-center gap-2">
+            <span class="text-gray-400">Status:</span>
+            {% if staff_profile.active_status == 'active' %}
+            <span class="px-2 py-1 bg-green/20 text-green rounded text-xs font-bold uppercase tracking-wider">Active</span>
+            {% else %}
+            <span class="px-2 py-1 bg-red/20 text-red rounded text-xs font-bold uppercase tracking-wider">{{ staff_profile.active_status }}</span>
+            {% endif %}
+          </p>
+          <a href="{% url 'users:staff_profile_edit' %}" class="btn-primary w-full text-center">Edit Staff Profile</a>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="card">
+        <div class="px-6 py-4 border-b border-borderColor bg-black/20">
+          <h5 class="text-lg font-semibold text-gold">Quick Stats</h5>
+        </div>
+        <div class="p-6">
+          <div class="stat-card">
+            <div class="stat-value">{{ unread_notifications|default:"0" }}</div>
+            <div class="stat-label">Unread Notifications</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

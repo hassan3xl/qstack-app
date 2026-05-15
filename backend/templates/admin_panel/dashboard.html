@@ -1,0 +1,125 @@
+{% extends 'base.html' %} 
+{% block title %}Admin Dashboard{% endblock %} 
+{% block page_title %}Admin Dashboard{% endblock %} 
+
+{% block sidebar %}
+<a href="{% url 'users:dashboard' %}" class="sidebar-link">Dashboard</a>
+<a href="{% url 'users:profile_edit' %}" class="sidebar-link">Profile</a>
+{% if staff_profile %}
+<a href="{% url 'users:staff_profile' %}" class="sidebar-link">Staff Profile</a>
+{% endif %}
+<a href="{% url 'notifications:list' %}" class="sidebar-link">Notifications</a>
+{% if user.is_staff %}
+<div class="my-2 border-t border-borderColor"></div>
+<a href="{% url 'admin_panel:dashboard' %}" class="sidebar-link">Admin Panel</a>
+<a href="{% url 'admin_panel:member_list' %}" class="sidebar-link">Members</a>
+<a href="{% url 'admin_panel:job_list' %}" class="sidebar-link">Jobs</a>
+<a href="{% url 'admin_panel:portfolio_list' %}" class="sidebar-link">Portfolios</a>
+<a href="{% url 'admin_panel:contact_list' %}" class="sidebar-link">Contacts</a>
+{% endif %} 
+{% endblock %} 
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+  <h4 class="text-2xl font-bold text-gold mb-6">Administration Overview</h4>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="stat-card">
+      <div class="stat-value">{{ total_members }}</div>
+      <div class="stat-label">Total Members</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value text-green">{{ active_members }}</div>
+      <div class="stat-label">Active Members</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value text-red">{{ suspended_members }}</div>
+      <div class="stat-label">Suspended Members</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ total_jobs }}</div>
+      <div class="stat-label">Total Jobs</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Members -->
+    <div class="card">
+      <div class="px-6 py-4 border-b border-borderColor bg-black/20 flex justify-between items-center">
+        <h5 class="text-lg font-semibold text-gold">Recent Members</h5>
+        <a href="{% url 'admin_panel:member_list' %}" class="btn-primary text-sm px-3 py-1">View All</a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-textLight">
+          <thead class="bg-[#222] border-b border-borderColor text-gray-400 uppercase">
+            <tr>
+              <th scope="col" class="px-6 py-3 font-medium">Name</th>
+              <th scope="col" class="px-6 py-3 font-medium">Email</th>
+              <th scope="col" class="px-6 py-3 font-medium">Status</th>
+              <th scope="col" class="px-6 py-3 font-medium text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-borderColor">
+            {% for member in recent_members %}
+            <tr class="hover:bg-white/5 transition-colors">
+              <td class="px-6 py-4 font-medium">{{ member.user.get_full_name }}</td>
+              <td class="px-6 py-4 text-gray-400">{{ member.user.email }}</td>
+              <td class="px-6 py-4">
+                {% if member.active_status == 'active' %}
+                <span class="px-2 py-1 bg-green/20 text-green rounded text-xs font-bold uppercase tracking-wider">Active</span>
+                {% else %}
+                <span class="px-2 py-1 bg-red/20 text-red rounded text-xs font-bold uppercase tracking-wider">{{ member.active_status }}</span>
+                {% endif %}
+              </td>
+              <td class="px-6 py-4 text-right">
+                <a href="{% url 'admin_panel:member_detail' member.id %}" class="text-gold hover:text-white transition-colors border border-gold hover:border-white rounded px-3 py-1">View</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="px-6 py-8 text-center text-gray-500">No members yet</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Contacts -->
+    <div class="card">
+      <div class="px-6 py-4 border-b border-borderColor bg-black/20 flex justify-between items-center">
+        <h5 class="text-lg font-semibold text-gold">Recent Contacts</h5>
+        <a href="{% url 'admin_panel:contact_list' %}" class="btn-primary text-sm px-3 py-1">View All</a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-textLight">
+          <thead class="bg-[#222] border-b border-borderColor text-gray-400 uppercase">
+            <tr>
+              <th scope="col" class="px-6 py-3 font-medium">Name</th>
+              <th scope="col" class="px-6 py-3 font-medium">Email</th>
+              <th scope="col" class="px-6 py-3 font-medium">Subject</th>
+              <th scope="col" class="px-6 py-3 font-medium text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-borderColor">
+            {% for contact in recent_contacts %}
+            <tr class="hover:bg-white/5 transition-colors">
+              <td class="px-6 py-4 font-medium">{{ contact.name }}</td>
+              <td class="px-6 py-4 text-gray-400">{{ contact.email }}</td>
+              <td class="px-6 py-4">{{ contact.subject|truncatewords:3 }}</td>
+              <td class="px-6 py-4 text-right">
+                <a href="{% url 'admin_panel:contact_detail' contact.id %}" class="text-gold hover:text-white transition-colors border border-gold hover:border-white rounded px-3 py-1">View</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="px-6 py-8 text-center text-gray-500">No contacts yet</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
