@@ -63,7 +63,7 @@ CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 
 # Load and parse ALLOWED_ORIGINS
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "")
 
-PROJECT_NAME = os.getenv("PROJECT_NAME", "myproject API")
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "").split(",")
