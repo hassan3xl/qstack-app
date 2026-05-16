@@ -15,21 +15,41 @@ env_path = BASE_DIR / '.env'
 load_dotenv(dotenv_path=env_path)
 
 # 3. Environment Detection
-# Default to 'development' if not set to avoid attribute errors
+# Explicitly set ENVIRONMENT in .env or via environment variable
+# Priority: ENVIRONMENT env var > 'development' (default)
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower()
 
 # Check if we are running inside a Docker container
-# Usually detected via /.dockerenv file or an environment variable
+# Only true if explicitly set or /.dockerenv exists
 IS_DOCKER = os.path.exists('/.dockerenv') or os.getenv("RUNNING_ON_DOCKER", "false").lower() == "true"
 
 # 4. Database Selection Logic
-SQLITE_DB = os.getenv("SQLITE_DB")
+LOCAL_DB = os.getenv("LOCAL_DB")
 DOCKER_DB = os.getenv("DOCKER_DB")
 PRODUCTION_DB = os.getenv("PRODUCTION_DB")
 
+
+def get_database_url():
+    """
+    Selects the right database URL based on where the app is running.
+    Priority: ENVIRONMENT var > production detection > defaults to local
+    """
+    if ENVIRONMENT == "production":
+        return PRODUCTION_DB
+    
+    # If we are in Docker (either via ENVIRONMENT=docker or auto-detected IS_DOCKER)
+    if ENVIRONMENT == "docker" or IS_DOCKER:
+        return DOCKER_DB
+    
+    # Defaults to local development (localhost)
+    return LOCAL_DB
+
+
+DATABASE_URL = get_database_url()
+
 # Compatibility Aliases
 BACKEND_ON_DOCKER_DB = DOCKER_DB
-BACKEND_NOT_ON_DOCKER_DB = SQLITE_DB
+BACKEND_NOT_ON_DOCKER_DB = LOCAL_DB
 
 # 5. Core Application Settings
 SECRET_KEY = os.getenv("SECRET_KEY", "change-this-secret-in-production")
@@ -43,12 +63,7 @@ CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 
 # Load and parse ALLOWED_ORIGINS
-raw_origins = os.getenv("ALLOWED_ORIGINS", "")
-if raw_origins and raw_origins != "[]":
-    ALLOWED_ORIGINS = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
-else:
-    # Default origins for local development
-    ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001"]
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "")
 
 PROJECT_NAME = os.getenv("PROJECT_NAME", "myproject API")
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
