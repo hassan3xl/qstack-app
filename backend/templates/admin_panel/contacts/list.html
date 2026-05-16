@@ -31,6 +31,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Subject</th>
+            <th>Source</th>
             <th>Submitted</th>
             <th>Action</th>
           </tr>
@@ -40,7 +41,8 @@
           <tr>
             <td>{{ contact.name }}</td>
             <td>{{ contact.email }}</td>
-            <td>{{ contact.subject|truncatewords:5 }}</td>
+            <td>{{ contact.subject|default:"No Subject"|truncatewords:5 }}</td>
+            <td><span class="px-2 py-1 bg-[#333] text-xs rounded text-green border border-borderColor">{{ contact.source|default:"website" }}</span></td>
             <td>{{ contact.created_at|date:"M d, Y H:i" }}</td>
             <td>
               <a
@@ -52,7 +54,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="5" class="text-center text-gray-400 py-4">
+            <td colspan="6" class="text-center text-gray-400 py-4">
               No contacts found
             </td>
           </tr>

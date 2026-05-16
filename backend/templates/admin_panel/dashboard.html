@@ -97,6 +97,7 @@
             <tr>
               <th scope="col" class="px-6 py-3 font-medium">Name</th>
               <th scope="col" class="px-6 py-3 font-medium">Email</th>
+              <th scope="col" class="px-6 py-3 font-medium">Source</th>
               <th scope="col" class="px-6 py-3 font-medium">Subject</th>
               <th scope="col" class="px-6 py-3 font-medium text-right">Action</th>
             </tr>
@@ -106,14 +107,15 @@
             <tr class="hover:bg-white/5 transition-colors">
               <td class="px-6 py-4 font-medium">{{ contact.name }}</td>
               <td class="px-6 py-4 text-gray-400">{{ contact.email }}</td>
-              <td class="px-6 py-4">{{ contact.subject|truncatewords:3 }}</td>
+              <td class="px-6 py-4"><span class="px-2 py-1 bg-[#333] text-xs rounded text-green border border-borderColor">{{ contact.source|default:"website" }}</span></td>
+              <td class="px-6 py-4">{{ contact.subject|default:"No Subject"|truncatewords:3 }}</td>
               <td class="px-6 py-4 text-right">
                 <a href="{% url 'admin_panel:contact_detail' contact.id %}" class="text-gold hover:text-white transition-colors border border-gold hover:border-white rounded px-3 py-1">View</a>
               </td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="4" class="px-6 py-8 text-center text-gray-500">No contacts yet</td>
+              <td colspan="5" class="px-6 py-8 text-center text-gray-500">No contacts yet</td>
             </tr>
             {% endfor %}
           </tbody>

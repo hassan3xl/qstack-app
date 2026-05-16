@@ -62,6 +62,14 @@
           {% endif %}
           <div class="flex flex-wrap -mx-4 mb-3">
             <div class="w-full sm:w-1/4 px-4">
+              <h6 class="mb-0">Source</h6>
+            </div>
+            <div class="w-full sm:w-3/4 px-4">
+              <span class="px-2 py-1 bg-[#333] text-xs rounded text-green border border-borderColor">{{ contact.source|default:"website" }}</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap -mx-4 mb-3">
+            <div class="w-full sm:w-1/4 px-4">
               <h6 class="mb-0">Submitted</h6>
             </div>
             <div class="w-full sm:w-3/4 px-4">

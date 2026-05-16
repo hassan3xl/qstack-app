@@ -68,6 +68,13 @@ class PortfolioViewSet(viewsets.ModelViewSet):
         # Additional logic for portfolio creation if needed
         serializer.save()
 
-class ContactCreateView(generics.CreateAPIView):
-    queryset = Contact.objects.all()
+class ContactListCreateView(generics.ListCreateAPIView):
     serializer_class = ContactSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        queryset = Contact.objects.all().order_by('-created_at')
+        source = self.request.query_params.get('source')
+        if source:
+            queryset = queryset.filter(source__iexact=source)
+        return queryset

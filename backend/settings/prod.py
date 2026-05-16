@@ -8,21 +8,20 @@ from settings.config import (
     ALLOWED_HOSTS,
     PRODUCTION_DB,
     SECRET_KEY,
+    CSRF_TRUSTED_ORIGINS,
+    ALLOWED_ORIGINS,
 )
 
 # Parse environment for CSRF trusted origins
-CSRF_TRUSTED_ORIGINS_STR = os.getenv("CSRF_TRUSTED_ORIGINS", "")
-CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in CSRF_TRUSTED_ORIGINS_STR.split(",") if origin.strip()]
 
 # Parse environment for allowed origins
 ALLOWED_ORIGINS_STR = os.getenv("ALLOWED_ORIGINS", "")
-ALLOWED_ORIGINS_LIST = [origin.strip() for origin in ALLOWED_ORIGINS_STR.split(",") if origin.strip()]
-
+CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS
 ALLOWED_HOSTS = ALLOWED_HOSTS
 SECRET_KEY = SECRET_KEY
-
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # CORS Configuration for production
-CORS_ALLOWED_ORIGINS = ALLOWED_ORIGINS_LIST
+CORS_ALLOWED_ORIGINS = ALLOWED_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     "accept",
@@ -65,3 +64,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+
+# Add trusted domains for CSRF and allowed hosts
+ALLOWED_HOSTS += ['app.qstack.com.ng', 'qstack-app.onrender.com']
+CSRF_TRUSTED_ORIGINS += ['https://app.qstack.com.ng', 'https://qstack-app.onrender.com']

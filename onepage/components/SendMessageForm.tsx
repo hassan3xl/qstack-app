@@ -26,8 +26,12 @@ interface SendMessageFormProps {
   source?: string;
 }
 
-export default function SendMessageForm({ source = "quantum-stack" }: SendMessageFormProps) {
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+export default function SendMessageForm({
+  source = "quantum-stack",
+}: SendMessageFormProps) {
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
 
   const {
     register,

@@ -296,6 +296,11 @@ def contact_list(request):
     """List all contact submissions with pagination."""
     contacts = Contact.objects.all().order_by('-created_at')
     
+    # Filter by source
+    source_filter = request.GET.get('source')
+    if source_filter:
+        contacts = contacts.filter(source__iexact=source_filter)
+    
     paginator = Paginator(contacts, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -303,6 +308,7 @@ def contact_list(request):
     context = {
         'page_obj': page_obj,
         'contacts': page_obj.object_list,
+        'source_filter': source_filter,
     }
     return render(request, 'admin_panel/contacts/list.html', context)
 
