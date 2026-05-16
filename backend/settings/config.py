@@ -23,31 +23,13 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower()
 IS_DOCKER = os.path.exists('/.dockerenv') or os.getenv("RUNNING_ON_DOCKER", "false").lower() == "true"
 
 # 4. Database Selection Logic
-LOCAL_DB = os.getenv("LOCAL_DB")
+SQLITE_DB = os.getenv("SQLITE_DB")
 DOCKER_DB = os.getenv("DOCKER_DB")
 PRODUCTION_DB = os.getenv("PRODUCTION_DB")
 
-
-def get_database_url():
-    """
-    Selects the right database URL based on where the app is running.
-    """
-    if ENVIRONMENT == "production":
-        return PRODUCTION_DB
-    
-    # If we are in Docker (either via ENVIRONMENT=docker or auto-detected IS_DOCKER)
-    if ENVIRONMENT == "docker" or IS_DOCKER:
-        return DOCKER_DB
-    
-    # Defaults to local development (localhost)
-    return LOCAL_DB
-
-
-DATABASE_URL = get_database_url()
-
 # Compatibility Aliases
 BACKEND_ON_DOCKER_DB = DOCKER_DB
-BACKEND_NOT_ON_DOCKER_DB = LOCAL_DB
+BACKEND_NOT_ON_DOCKER_DB = SQLITE_DB
 
 # 5. Core Application Settings
 SECRET_KEY = os.getenv("SECRET_KEY", "change-this-secret-in-production")
@@ -69,3 +51,4 @@ else:
     ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001"]
 
 PROJECT_NAME = os.getenv("PROJECT_NAME", "myproject API")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")

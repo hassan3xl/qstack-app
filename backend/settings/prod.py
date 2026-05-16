@@ -6,14 +6,15 @@ import dj_database_url
 DEBUG = True
 
 SECRET_KEY = os.environ["SECRET_KEY"]
-
-ALLOWED_HOSTS = os.environ.get(
-    "ALLOWED_HOSTS"
-).split(",")
+from settings.config import (
+    ALLOWED_HOSTS,
+    PRODUCTION_DB,
+)
+ALLOWED_HOSTS = ALLOWED_HOSTS
 
 
 DATABASES = {
-    "default": dj_database_url.config(default=os.getenv("NEON_DB"))
+    "default": dj_database_url.parse(PRODUCTION_DB, conn_max_age=600) 
 }
 
 # Free-tier friendly cache

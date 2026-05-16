@@ -1,17 +1,23 @@
+from dj_database_url import parse
+
 from .base import *
 import os
-import dj_database_url
 
 DEBUG = True
 import socket
 hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
 INTERNAL_IPS = [ip[:-1] + "1" for ip in ips] + ["127.0.0.1"]
-from utils.env import ALLOWED_ORIGINS, ALLOWED_HOSTS
 # SECRET_KEY = os.environ["SECRET_KEY"]
 SECRET_KEY="dasdaskdaskdjasds"
 
 
+from settings.config import (
+    ALLOWED_ORIGINS, ALLOWED_HOSTS, PRODUCTION_DB, 
+)
+
+
 ALLOWED_HOSTS = ALLOWED_HOSTS
+ALLOWED_ORIGINS = ALLOWED_ORIGINS
 
 DATABASES = {
     # use sqlite3 in development
@@ -19,7 +25,7 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # },
-    "default": dj_database_url.config(default=os.getenv("NEON_DB"))
+    "default": parse(PRODUCTION_DB, conn_max_age=600)
 
 }
 
