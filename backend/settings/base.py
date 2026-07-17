@@ -27,10 +27,11 @@ import cloudinary.api
 sys.path.insert(0, str(BASE_DIR))
 
 INSTALLED_APPS = [
+    # Core app first — gives our management commands priority over cloudinary_storage overrides
+    'apps.core.apps.CoreConfig',
 
     'cloudinary',
     'cloudinary_storage',
-
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,14 +43,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
-    
-    
+
     'dj_rest_auth',
     'corsheaders',
-    
-    # Core app
-    'apps.core.apps.CoreConfig',
-    
+
     # Feature apps
     'apps.users.apps.UsersConfig',
     'apps.notifications',
