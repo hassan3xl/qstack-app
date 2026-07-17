@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     
     # Feature apps
     'apps.users.apps.UsersConfig',
-    'apps.notifications.apps.NotificationsConfig',
+    'apps.notifications',
     'apps.admin_panel.apps.AdminPanelConfig',
     ]
 
@@ -85,6 +85,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
 
 ]
 
@@ -140,16 +143,20 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-# 1. The modern way (Django 4.2+)
+
 STORAGES = {
+    # Media: Goes to Cloudinary
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
+    
+    # Static: Stays local (served by WhiteNoise middleware)
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
+# Compatibility shim: cloudinary_storage still reads the old Django 4.1 attribute
 STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
 
 TEMPLATES = [
@@ -207,6 +214,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_URL = "media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

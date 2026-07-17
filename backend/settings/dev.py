@@ -20,31 +20,18 @@ from settings.config import (
 ALLOWED_HOSTS = ALLOWED_HOSTS
 ALLOWED_ORIGINS = ALLOWED_ORIGINS
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     },
-#     # "default": parse(PRODUCTION_DB, conn_max_age=600)
-
-# }
-
 DATABASES = {
-    "default": dj_database_url.parse(PRODUCTION_DB, conn_max_age=600) 
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    # "default": parse(PRODUCTION_DB, conn_max_age=600)
+
 }
 
-
-STORAGES = {
-    # Media: Goes to Cloudinary
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    
-    # Static: Stays local (or use WhiteNoise in production)
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
+# DATABASES = {
+#     "default": dj_database_url.parse(PRODUCTION_DB, conn_max_age=600) 
+# }
 
 
 # CACHES = {
