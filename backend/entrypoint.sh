@@ -13,7 +13,7 @@ if [ "$DJANGO_ENV" != "production" ]; then
       echo "Database not ready, waiting..."
       sleep 1
     done
-  else
+  else  
     echo "nc not found, sleeping for 5s..."
     sleep 5
   fi
