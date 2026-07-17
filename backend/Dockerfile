@@ -4,6 +4,7 @@ FROM python:3.11-slim-bookworm
 # Prevent Python from writing .pyc files and buffering stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV DJANGO_SETTINGS_MODULE=settings.prod
 
 WORKDIR /app
 
