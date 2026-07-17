@@ -2,18 +2,6 @@
 {% block title %}User Dashboard{% endblock %} 
 {% block page_title %}Dashboard{% endblock %} 
 
-{% block sidebar %}
-<a href="{% url 'users:dashboard' %}" class="sidebar-link">Dashboard</a>
-<a href="{% url 'users:profile_edit' %}" class="sidebar-link">Profile</a>
-{% if staff_profile %}
-<a href="{% url 'users:staff_profile' %}" class="sidebar-link">Staff Profile</a>
-{% endif %}
-<a href="{% url 'notifications:list' %}" class="sidebar-link">Notifications</a>
-{% if user.is_staff %}
-<div class="my-2 border-t border-borderColor"></div>
-<a href="{% url 'admin_panel:dashboard' %}" class="sidebar-link">Admin Panel</a>
-{% endif %} 
-{% endblock %} 
 
 {% block content %}
 <div class="max-w-7xl mx-auto">
@@ -84,7 +72,7 @@
             <span class="px-2 py-1 bg-red/20 text-red rounded text-xs font-bold uppercase tracking-wider">{{ staff_profile.active_status }}</span>
             {% endif %}
           </p>
-          <a href="{% url 'users:staff_profile_edit' %}" class="btn-primary w-full text-center">Edit Staff Profile</a>
+          <a href="{% url 'users:profile_edit' %}" class="btn-primary w-full text-center">Edit Profile Settings</a>
         </div>
       </div>
       {% endif %}

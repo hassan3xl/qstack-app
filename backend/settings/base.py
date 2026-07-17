@@ -7,12 +7,16 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 AUTH_USER_MODEL = 'users.User'
 
-# Import environment configuration
 from settings.config import (
     CLOUDINARY_CLOUD_NAME,
     CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET,
+    QSTACK_NOTIFICATION_API_KEY,
+    QSTACK_NOTIFICATION_SERVER_URL,
 )
+
+QSTACK_NOTIFICATION_API_KEY = QSTACK_NOTIFICATION_API_KEY
+QSTACK_NOTIFICATION_SERVER_URL = QSTACK_NOTIFICATION_SERVER_URL
 
 import cloudinary
 import cloudinary.uploader
@@ -42,7 +46,6 @@ INSTALLED_APPS = [
     
     'dj_rest_auth',
     'corsheaders',
-    'django_apscheduler',
     
     # Core app
     'apps.core.apps.CoreConfig',

@@ -18,7 +18,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='/login/'), name='logout'),
     
     # Django template-based apps
-    path('users/', include('apps.users.urls')),
+    path('', include('apps.users.urls')),
     path('notifications/', include('apps.notifications.urls')),
     path('admin-panel/', include('apps.admin_panel.urls')),
 ]

@@ -1,16 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Edit Staff Profile{% endblock %}
 {% block page_title %}Edit Staff Profile{% endblock %}
-{% block sidebar %}
-<a href="{% url 'users:dashboard' %}">Dashboard</a>
-<a href="{% url 'users:profile' %}">Profile</a>
-<a href="{% url 'users:staff_profile' %}" class="">Staff Profile</a>
-<a href="{% url 'notifications:list' %}">Notifications</a>
-{% if user.is_staff %}
-<hr class="bg-white" />
-<a href="{% url 'admin_panel:dashboard' %}">Admin Panel</a>
-{% endif %}
-{% endblock %}
 
 {% block content %}
 <div class="w-full">

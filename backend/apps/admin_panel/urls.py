@@ -10,6 +10,7 @@ urlpatterns = [
     # Members
     path('members/', views.member_list, name='member_list'),
     path('members/<uuid:member_id>/', views.member_detail, name='member_detail'),
+    path('members/<uuid:member_id>/edit/', views.member_edit, name='member_edit'),
     path('members/<uuid:member_id>/activate/', views.member_activate, name='member_activate'),
     path('members/<uuid:member_id>/suspend/', views.member_suspend, name='member_suspend'),
     

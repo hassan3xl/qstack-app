@@ -8,6 +8,7 @@ from apps.core.models.staff import Staff
 from apps.core.models.jobs import Job
 from apps.core.models.portfolio import Portfolio
 from apps.core.models.contact import Contact
+from apps.notifications.notification_services import NotificationService  # adjust import path to wherever the class lives
 
 
 def is_admin(user):
@@ -84,19 +85,111 @@ def member_detail(request, member_id):
 
 @login_required
 @user_passes_test(is_admin)
+@require_http_methods(["GET", "POST"])
+def member_edit(request, member_id):
+    """Edit member information from the admin panel."""
+    from apps.users.models import User
+    from apps.core.models.staff import Skill, Social, Role
+    
+    member = get_object_or_404(Staff, id=member_id)
+    user = member.user
+    
+    if request.method == 'POST':
+        # Update user fields
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.email = request.POST.get('email', user.email)
+        user.user_role = request.POST.get('user_role', user.user_role)
+        user.save()
+        
+        # Update staff fields
+        member.bio = request.POST.get('bio', member.bio)
+        member.active_status = request.POST.get('active_status', member.active_status)
+        member.role_id = request.POST.get('role', member.role_id)
+        
+        if 'avatar' in request.FILES:
+            member.avatar = request.FILES['avatar']
+        elif request.POST.get('remove_avatar') == 'true':
+            member.avatar.delete(save=False)
+            member.avatar = None
+            
+        member.save()
+        
+        # Update skills
+        skill_ids = request.POST.getlist('skills')
+        member.skills.set(Skill.objects.filter(id__in=skill_ids))
+        
+        # Update socials
+        for platform, _ in Social.PLATFORM_CHOICES:
+            url = request.POST.get(f'social_{platform}', '').strip()
+            if url:
+                Social.objects.update_or_create(
+                    staff=member,
+                    platform=platform,
+                    defaults={'url': url}
+                )
+            else:
+                Social.objects.filter(staff=member, platform=platform).delete()
+                
+        # Send notification
+        try:
+            NotificationService.send_notification(
+                recipient=user,
+                actor=request.user,
+                title="Profile Updated by Admin",
+                message="Your profile has been updated by an administrator.",
+                target_obj=member,
+                category="system_alert",
+                type="info"
+            )
+        except Exception as e:
+            print(f"Failed to send member update notification: {e}")
+            
+        messages.success(request, f'Member {user.get_full_name()} updated successfully.')
+        return redirect('admin_panel:member_detail', member_id=member.id)
+        
+    skills = Skill.objects.all()
+    roles = Role.objects.all()
+    socials_dict = {}
+    for s in Social.objects.filter(staff=member):
+        socials_dict[s.platform] = s.url
+        
+    context = {
+        'member': member,
+        'user_role_choices': User.ROLE_CHOICES,
+        'status_choices': Staff.STATUS_CHOICES,
+        'roles': roles,
+        'skills': skills,
+        'socials': socials_dict,
+    }
+    return render(request, 'admin_panel/members/edit.html', context)
+
+
+
+
+@login_required
+@user_passes_test(is_admin)
 @require_http_methods(["POST"])
 def member_activate(request, member_id):
     """Activate a member."""
     member = get_object_or_404(Staff, id=member_id)
     member.active_status = 'active'
     member.save()
-    
+
+    NotificationService.send_notification(
+        recipient=member.user,
+        actor=request.user,
+        title='Account Activated',
+        message='Your account has been activated. You now have full access.',
+        target_obj=member,
+        category='account_activation',
+        type='success'
+    )
+
     messages.success(request, f'{member.user.get_full_name()} has been activated.')
-    
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'success': True, 'status': 'active'})
-    
-    return redirect('admin_panel:member_detail', member_id=member_id)
+    return redirect(request.META.get('HTTP_REFERER', 'admin_panel:dashboard'))
 
 
 @login_required
@@ -113,7 +206,7 @@ def member_suspend(request, member_id):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'success': True, 'status': 'suspended'})
     
-    return redirect('admin_panel:member_detail', member_id=member_id)
+    return redirect(request.META.get('HTTP_REFERER', 'admin_panel:dashboard'))
 
 
 @login_required

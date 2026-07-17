@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env_path = BASE_DIR / '.env'
 
 # 2. Load environment variables
-load_dotenv(dotenv_path=env_path)
+load_dotenv(dotenv_path=env_path, override=True)
 
 # 3. Environment Detection
 # Explicitly set ENVIRONMENT in .env or via environment variable
@@ -28,29 +28,6 @@ LOCAL_DB = os.getenv("LOCAL_DB")
 DOCKER_DB = os.getenv("DOCKER_DB")
 PRODUCTION_DB = os.getenv("PRODUCTION_DB")
 
-
-def get_database_url():
-    """
-    Selects the right database URL based on where the app is running.
-    Priority: ENVIRONMENT var > production detection > defaults to local
-    """
-    if ENVIRONMENT == "production":
-        return PRODUCTION_DB
-    
-    # If we are in Docker (either via ENVIRONMENT=docker or auto-detected IS_DOCKER)
-    if ENVIRONMENT == "docker" or IS_DOCKER:
-        return DOCKER_DB
-    
-    # Defaults to local development (localhost)
-    return LOCAL_DB
-
-
-DATABASE_URL = get_database_url()
-
-# Compatibility Aliases
-BACKEND_ON_DOCKER_DB = DOCKER_DB
-BACKEND_NOT_ON_DOCKER_DB = LOCAL_DB
-
 # 5. Core Application Settings
 SECRET_KEY = os.getenv("SECRET_KEY", "change-this-secret-in-production")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
@@ -61,6 +38,10 @@ CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME")
 CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
 CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+
+# 7. Notification Server Settings
+QSTACK_NOTIFICATION_API_KEY = os.getenv("QSTACK_NOTIFICATION_API_KEY")
+QSTACK_NOTIFICATION_SERVER_URL = os.getenv("QSTACK_NOTIFICATION_SERVER_URL")
 
 # Load and parse ALLOWED_ORIGINS
 

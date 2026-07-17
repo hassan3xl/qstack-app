@@ -20,12 +20,11 @@ ALLOWED_HOSTS = ALLOWED_HOSTS
 ALLOWED_ORIGINS = ALLOWED_ORIGINS
 
 DATABASES = {
-    # use sqlite3 in development
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # },
-    "default": parse(PRODUCTION_DB, conn_max_age=600)
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    # "default": parse(PRODUCTION_DB, conn_max_age=600)
 
 }
 
@@ -54,35 +53,3 @@ STORAGES = {
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-
-
-# At the bottom of settings.py
-if DEBUG:
-    DEBUG_TOOLBAR_CONFIG = {
-        "SHOW_TOOLBAR_CALLBACK": lambda request: True,
-    }
-
-
-# # Check if we are running pytest or standard django tests
-# TESTING = 'pytest' in sys.modules or 'test' in sys.argv
-
-# # ONLY load Debug Toolbar if we are NOT testing
-# if not TESTING:
-#     # 1. Add the App
-#     INSTALLED_APPS += ['debug_toolbar']
-    
-#     # 2. Add the Middleware (Insert at the top is best)
-#     MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-    
-#     # 3. Add the Config
-#     DEBUG_TOOLBAR_CONFIG = {
-#         "SHOW_TOOLBAR_CALLBACK": lambda request: True,
-#     }
-    
-#     # 4. Internal IPs (Docker fix)
-#     import socket
-#     try:
-#         hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-#         INTERNAL_IPS = [ip[:-1] + "1" for ip in ips] + ["127.0.0.1"]
-#     except Exception:
-#         INTERNAL_IPS = ["127.0.0.1"]

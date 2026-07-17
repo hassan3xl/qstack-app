@@ -63,7 +63,7 @@ SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+# MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
 # Add trusted domains for CSRF and allowed hosts
 ALLOWED_HOSTS += ['app.qstack.com.ng', 'qstack-app.onrender.com']

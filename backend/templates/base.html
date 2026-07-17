@@ -25,6 +25,9 @@
       };
     </script>
 
+    <!-- Socket.IO Client -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
     <!-- HTMX & Alpine.js -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script
@@ -80,6 +83,7 @@
     {% block extra_css %}{% endblock %}
   </head>
   <body hx-boost="true" class="antialiased flex h-screen overflow-hidden">
+    {% if user.is_authenticated %}
     <!-- Sidebar -->
     <div
       class="w-64 bg-gradient-to-br from-[#0f0f0f] to-[#1a1a1a] border-r border-borderColor h-full flex flex-col shrink-0"
@@ -89,12 +93,42 @@
       </h5>
       <nav class="flex-1 overflow-y-auto flex flex-col">
         <!-- Re-map the block sidebar to use sidebar-link classes inside the child templates -->
-        {% block sidebar %}{% endblock %}
+        {% block sidebar %}
+        <a href="{% url 'users:dashboard' %}" class="sidebar-link {% if request.path == '/users/dashboard/' or request.path == '/' %}active{% endif %}">
+          Dashboard
+        </a>
+        <a href="{% url 'users:profile_edit' %}" class="sidebar-link {% if '/users/profile/' in request.path %}active{% endif %}">
+          Profile Settings
+        </a>
+        <a href="{% url 'notifications:list' %}" class="sidebar-link {% if '/notifications/' in request.path %}active{% endif %}">
+          Notifications
+        </a>
+        {% if user.is_staff %}
+        <div class="my-2 border-t border-borderColor/60"></div>
+        <a href="{% url 'admin_panel:dashboard' %}" class="sidebar-link {% if request.path == '/admin-panel/dashboard/' %}active{% endif %}">
+          Admin Panel
+        </a>
+        <a href="{% url 'admin_panel:member_list' %}" class="sidebar-link {% if '/admin-panel/members/' in request.path %}active{% endif %}">
+          Members
+        </a>
+        <a href="{% url 'admin_panel:job_list' %}" class="sidebar-link {% if '/admin-panel/jobs/' in request.path %}active{% endif %}">
+          Jobs
+        </a>
+        <a href="{% url 'admin_panel:portfolio_list' %}" class="sidebar-link {% if '/admin-panel/portfolios/' in request.path %}active{% endif %}">
+          Portfolios
+        </a>
+        <a href="{% url 'admin_panel:contact_list' %}" class="sidebar-link {% if '/admin-panel/contacts/' in request.path %}active{% endif %}">
+          Contacts
+        </a>
+        {% endif %}
+        {% endblock %}
       </nav>
     </div>
+    {% endif %}
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col h-full overflow-hidden">
+      {% if user.is_authenticated %}
       <!-- Navbar -->
       <nav
         class="bg-cardDark border-b border-borderColor shadow px-6 py-4 flex justify-between items-center shrink-0"
@@ -103,53 +137,139 @@
           {% block page_title %}Dashboard{% endblock %}
         </span>
 
-        <div x-data="{ open: false }" class="relative">
-          <button
-            @click="open = !open"
-            @click.away="open = false"
-            class="text-textLight hover:text-gold flex items-center gap-2 focus:outline-none"
+        <div class="flex items-center gap-6">
+          <!-- Broadcast Alert Button -->
+          {% if user.is_authenticated %}
+          <button 
+            onclick="
+              fetch('{% url 'notifications:broadcast_test' %}', {
+                method: 'POST',
+                headers: {
+                  'X-CSRFToken': '{{ csrf_token }}',
+                  'Content-Type': 'application/json'
+                }
+              })
+              .then(r => r.json())
+              .then(data => {
+                if (!data.success) {
+                  alert('Failed to send broadcast');
+                }
+              })
+              .catch(err => console.error(err));
+            "
+            class="px-3 py-1.5 bg-gold/10 hover:bg-gold/20 text-gold border border-gold/30 rounded text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 focus:outline-none"
+            title="Broadcast a test alert to all users"
           >
-            {% if user.is_authenticated %}
-              {{ user.username }}
-            {% else %}
-              Account
-            {% endif %}
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 9l-7 7-7-7"
-              ></path>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
             </svg>
+            Broadcast Alert
           </button>
+          {% endif %}
 
-          <div
-            x-show="open"
-            x-transition.opacity
-            class="absolute right-0 mt-2 w-48 bg-cardDark border border-borderColor rounded shadow-lg py-1 z-50"
-            style="display: none"
-          >
-            <a
-              href="{% url 'users:dashboard' %}"
-              class="block px-4 py-2 text-textLight hover:bg-gold/10 hover:text-gold"
-              >My Profile</a
+          <!-- Notification Dropdown -->
+          {% if user.is_authenticated %}
+          <div x-data="{ open: false, unreadCount: 0, notifications: [] }" 
+               @qstack:notification.document="
+                 notifications.unshift($event.detail);
+                 unreadCount++;
+               "
+               x-init="
+                 // Initial fetch of unread count and items from Django DB
+                 fetch('{% url 'notifications:unread_count' %}')
+                   .then(r => r.json())
+                   .then(data => { 
+                     unreadCount = data.unread_count; 
+                     notifications = data.notifications || [];
+                   });
+               " 
+               class="relative">
+            <button @click="open = !open" class="relative text-textLight hover:text-gold focus:outline-none flex items-center">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+              </svg>
+              <!-- Badge -->
+              <span x-show="unreadCount > 0" x-text="unreadCount" class="absolute -top-1.5 -right-1.5 bg-red text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center scale-90 border border-cardDark"></span>
+            </button>
+
+            <!-- Dropdown -->
+            <div x-show="open" @click.away="open = false" x-transition.opacity class="absolute right-0 mt-2 w-80 bg-cardDark border border-borderColor rounded shadow-xl py-2 z-50" style="display: none">
+              <div class="px-4 py-2 border-b border-borderColor flex justify-between items-center">
+                <span class="font-bold text-sm text-gold">Notifications</span>
+                <button @click="
+                  fetch('{% url 'notifications:mark_all_as_read' %}', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}', 'X-Requested-With': 'XMLHttpRequest' }
+                  }).then(() => { unreadCount = 0; notifications = []; });
+                " class="text-xs text-green hover:underline">Mark all as read</button>
+              </div>
+              <div class="max-h-60 overflow-y-auto">
+                <template x-if="notifications.length === 0">
+                  <div class="px-4 py-3 text-sm text-gray-400 text-center">No new notifications</div>
+                </template>
+                <template x-for="item in notifications" :key="item.id">
+                  <div class="px-4 py-3 border-b border-borderColor/50 hover:bg-gold/5 transition-all">
+                    <h4 class="text-sm font-semibold text-textLight" x-text="item.title"></h4>
+                    <p class="text-xs text-gray-400 mt-0.5" x-text="item.body"></p>
+                    <span class="text-[10px] text-gold/60 mt-1 block" x-text="new Date(item.created_at).toLocaleTimeString()"></span>
+                  </div>
+                </template>
+              </div>
+              <a href="{% url 'notifications:list' %}" class="block text-center text-xs text-gold hover:underline pt-2 border-t border-borderColor">View all notifications</a>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- User Profile Dropdown -->
+          <div x-data="{ open: false }" class="relative">
+            <button
+              @click="open = !open"
+              @click.away="open = false"
+              class="text-textLight hover:text-gold flex items-center gap-2 focus:outline-none"
             >
-            <div class="border-t border-borderColor my-1"></div>
-            <a
-              href="{% url 'logout' %}"
-              hx-boost="false"
-              class="block px-4 py-2 text-textLight hover:bg-gold/10 hover:text-gold"
-              >Logout</a
+              {% if user.is_authenticated %}
+                {{ user.email }}
+              {% else %}
+                Account
+              {% endif %}
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                ></path>
+              </svg>
+            </button>
+
+            <div
+              x-show="open"
+              x-transition.opacity
+              class="absolute right-0 mt-2 w-48 bg-cardDark border border-borderColor rounded shadow-lg py-1 z-50"
+              style="display: none"
             >
+              <a
+                href="{% url 'users:dashboard' %}"
+                class="block px-4 py-2 text-textLight hover:bg-gold/10 hover:text-gold"
+                >My Profile</a
+              >
+              <div class="border-t border-borderColor my-1"></div>
+              <a
+                href="{% url 'logout' %}"
+                hx-boost="false"
+                class="block px-4 py-2 text-textLight hover:bg-gold/10 hover:text-gold"
+                >Logout</a
+              >
+            </div>
           </div>
         </div>
       </nav>
+      {% endif %}
 
       <!-- Scrollable content area -->
       <main class="flex-1 overflow-y-auto p-6 relative" id="main-content">
@@ -197,6 +317,16 @@
       });
       // Handle Django messages injected via HTMX responses (if any)
     </script>
+    <!-- QStack Notification Drop-in Widget (No Socket Code Required) -->
+    {% if user.is_authenticated %}
+    <script 
+      src="http://localhost:8000/static/notify-widget.js" 
+      data-server="https://notification.qstack.com.ng"
+      data-recipient="{{ user.email }}"
+      data-toast="true">
+    </script>
+    {% endif %}
+
     {% block extra_js %}{% endblock %}
   </body>
 </html>
