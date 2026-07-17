@@ -21,13 +21,18 @@ if [ "$DJANGO_ENV" != "production" ]; then
   echo "Database is ready!"
 fi
 
+# Set settings module for production
+if [ "$DJANGO_ENV" = "production" ]; then
+  export DJANGO_SETTINGS_MODULE=settings.prod
+fi
+
 # Run migrations
 echo "Running migrations..."
 uv run python manage.py migrate --noinput
 
 if [ "$DJANGO_ENV" = "production" ]; then
   echo "Running in PRODUCTION mode"
-  
+
   echo "Collecting static files..."
   uv run python manage.py collectstatic --noinput
 
