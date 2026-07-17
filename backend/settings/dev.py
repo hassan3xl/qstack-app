@@ -9,6 +9,7 @@ hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
 INTERNAL_IPS = [ip[:-1] + "1" for ip in ips] + ["127.0.0.1"]
 # SECRET_KEY = os.environ["SECRET_KEY"]
 SECRET_KEY="dasdaskdaskdjasds"
+import dj_database_url
 
 
 from settings.config import (
@@ -19,14 +20,19 @@ from settings.config import (
 ALLOWED_HOSTS = ALLOWED_HOSTS
 ALLOWED_ORIGINS = ALLOWED_ORIGINS
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    },
-    # "default": parse(PRODUCTION_DB, conn_max_age=600)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     },
+#     # "default": parse(PRODUCTION_DB, conn_max_age=600)
 
+# }
+
+DATABASES = {
+    "default": dj_database_url.parse(PRODUCTION_DB, conn_max_age=600) 
 }
+
 
 STORAGES = {
     # Media: Goes to Cloudinary
