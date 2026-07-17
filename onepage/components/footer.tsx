@@ -15,22 +15,7 @@ export function Footer() {
             >
               Quantum Stack Technologies
             </a>
-            . The parent company for innovation.
           </p>
-        </div>
-        <div className="flex gap-4">
-          <Link
-            href="/privacy"
-            className="text-sm font-medium underline underline-offset-4"
-          >
-            Privacy
-          </Link>
-          <Link
-            href="/terms"
-            className="text-sm font-medium underline underline-offset-4"
-          >
-            Terms
-          </Link>
         </div>
       </div>
     </footer>

@@ -168,9 +168,6 @@ export default async function PortfolioPage() {
         </div>
 
         <div className="container mx-auto px-4 w-11/12 text-center">
-          <span className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-primary/10 text-primary mb-6">
-            Our Work
-          </span>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
             Projects We&apos;ve <span className="text-primary">Built</span>
           </h1>
