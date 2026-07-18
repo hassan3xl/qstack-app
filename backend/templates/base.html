@@ -321,6 +321,7 @@
     <!-- QStack Notification Drop-in Widget (No Socket Code Required) -->
     {% if user.is_authenticated %}
     <script 
+      id="qstack-notify-script"
       src="{% static 'notify-widget.js' %}"
       data-server="https://notification.qstack.com.ng"
       data-recipient="{{ user.email }}"
