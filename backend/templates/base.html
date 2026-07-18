@@ -322,7 +322,7 @@
     {% if user.is_authenticated %}
     <script 
       id="qstack-notify-script"
-      src="{% static 'notify-widget.js' %}"
+      src="{% static 'notify-widget.js' %}?v=3"
       data-server="https://notification.qstack.com.ng"
       data-recipient="{{ user.email }}"
       data-toast="true">

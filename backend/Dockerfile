@@ -22,5 +22,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the code
 COPY . .
 
+# Run collectstatic during build time so static files are baked into the image
+RUN PRODUCTION_DB=sqlite:///:memory: python manage.py collectstatic --noinput
+
 # Command to run Django
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
